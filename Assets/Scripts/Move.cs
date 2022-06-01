@@ -1,27 +1,28 @@
-using System.Collections.Generic;
-using BezierSolution;
 using UnityEngine;
 
 public class Move : MonoBehaviour
 {
-    [SerializeField] private float speed = 2;
     [SerializeField] private Graph graphPrefab;
     [SerializeField] private Node startNodePrefab;
     [SerializeField] private Node endNodePrefab;
     [SerializeField] private Transform[] objectList;
-    [SerializeField] private BezierTest bezierTest;
-   
-    
+    [SerializeField] private Follow follow;
+
 
     private Vector3 pos;
     private Graph graph;
     private string clickObject;
     private Node start;
     private Node end;
+    private Vector3 startPosition;
+    private Vector3 middlePosition;
+    private Vector3 endPosition;
 
-    public Node StartNode => start;
+    public Vector3 StartPosition => startPosition;
 
-    public Node EndNode => end;
+    public Vector3 MiddlePosition => middlePosition;
+
+    public Vector3 EndPosition => endPosition;
 
     public string ClickObject => clickObject;
 
@@ -30,7 +31,8 @@ public class Move : MonoBehaviour
         graph = graphPrefab;
         start = startNodePrefab;
         end = endNodePrefab;
-       
+
+        startPosition = new Vector3(transform.position.x, transform.position.x, transform.position.z);
     }
 
     private void Update()
@@ -50,54 +52,43 @@ public class Move : MonoBehaviour
                 {
                     clickObject = raycastHit.transform.gameObject.name;
                     pos = raycastHit.point;
-                    
-                    FindCube();
-                    GetPath();
-                    
-                    
+
+                    startPosition = endPosition;
+                    FindNodeInClickedCube();
+                    GetMiddlePosition();
+
+                    endPosition = new Vector3(pos.x, pos.y, pos.z);
+
+                    follow.StartGoing();
                 }
-                
             }
         }
-
-        //transform.position = Vector3.MoveTowards(transform.position, pos, speed * Time.deltaTime);
-
     }
 
-    private void GetPath()
+    private void GetMiddlePosition()
     {
-        Path path = graph.GetShortestPath ( start, end );
-        for ( int i = 0; i < path.nodes.Count; i++ ) {
-           
+        Path path = graph.GetShortestPath(start, end);
+        for (int i = 0; i < path.nodes.Count; i++)
+        {
             if (i == 1)
             {
-                Debug.Log ( path.nodes [i] );  
+                middlePosition = new Vector3(path.nodes[i].transform.position.x, path.nodes[i].transform.position.y,
+                    path.nodes[i].transform.position.z);
             }
         }
-        Debug.LogFormat ( "Path Length: {0}", path.length );
+
+        Debug.LogFormat("Path Length: {0}", path.length);
     }
-    
-    private void FindCube()
+
+    private void FindNodeInClickedCube()
     {
         foreach (Transform potentialTarget in objectList)
         {
             if (potentialTarget.name.Equals(clickObject))
             {
                 start = end;
-                end.GetComponent<BezierPoint>().enabled = false;
                 end = potentialTarget.GetComponent<Node>();
-                if (potentialTarget.GetComponent<BezierPoint>())
-                {
-                    potentialTarget.GetComponent<BezierPoint>().enabled = true;
-                }
-                else
-                {
-                    potentialTarget.gameObject.AddComponent<BezierPoint>();
-                }
-
-                transform.GetComponent<BezierWalkerWithSpeed>().Execute(2);
             }
         }
-    
     }
 }

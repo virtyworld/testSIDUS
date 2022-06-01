@@ -9,12 +9,12 @@ using UnityEngine;
 public class Follower : MonoBehaviour
 {
 
-	[SerializeField]
-	protected Graph m_Graph;
-	[SerializeField]
-	protected Node m_Start;
-	[SerializeField]
-	protected Node m_End;
+	// [SerializeField]
+	// protected Graph m_Graph;
+	// [SerializeField]
+	// protected Node m_Start;
+	// [SerializeField]
+	// protected Node m_End;
 	[SerializeField]
 	protected float m_Speed = 0.01f;
 	protected Path m_Path = new Path ();
